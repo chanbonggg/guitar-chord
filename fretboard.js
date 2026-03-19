@@ -37,14 +37,14 @@ function renderFretboard(positions, maxFret = 21, multiColor = false) {
   const svgH = padTop + boardH + padBottom;
 
   const stringWidths = [2.4, 2.0, 1.6, 1.3, 1.0, 0.8]; // 0=6번줄 굵
-  const STRING_NAMES = ["E", "A", "D", "G", "B", "e"];
+  const STRING_NAMES = ["E", "A", "D", "G", "B", "E"];
 
   const fretCx = (fret) =>
     fret === 0
       ? padLeft + nutW / 2
       : padLeft + nutW + (fret - 0.5) * cellW;
   const fretLineX = (fret) => padLeft + nutW + fret * cellW;
-  const sy = (s) => padTop + s * cellH;
+  const sy = (s) => padTop + (NUM_STRINGS - 1 - s) * cellH;
 
   let svg = `<svg width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg">`;
 
