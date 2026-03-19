@@ -292,6 +292,74 @@ header h1 {
 #tab-scales .scale-legend { padding: 0 24px 8px; }
 #tab-scales .fretboard-wrap { padding: 0 24px 32px; }
 
+/* ── 즐겨찾기 그리드 ─────────────────────────────── */
+.fav-grid {
+  padding: 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.fav-grid .fav-empty {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.8;
+  text-align: center;
+  padding: 48px 0;
+}
+
+.fav-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+.fav-card.drag-over { border-color: var(--accent); }
+.fav-card.dragging { opacity: 0.35; }
+
+.fav-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.drag-handle {
+  color: var(--text-muted);
+  cursor: grab;
+  font-size: 1.1rem;
+  line-height: 1;
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+.drag-handle:hover { opacity: 1; }
+
+.fav-card-name {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.fav-card-type {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.fav-card-legend {
+  flex: 1;
+  margin: 0;
+  min-width: 0;
+}
+
+.fav-card-fretboard {
+  padding: 12px 14px;
+}
+
 /* ── 반응형 ─────────────────────────────────────── */
 @media (max-width: 640px) {
   .chord-tab-layout { flex-direction: column; height: auto; }

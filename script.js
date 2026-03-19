@@ -5,8 +5,7 @@ let currentChordIndex = 0;
 let currentChordRoot = "C";
 let currentRoot = "C";
 let currentScale = "Major";
-let currentFavIndex = 0;
-let favorites = new Set(JSON.parse(localStorage.getItem("guitar-favorites") || "[]"));
+let favorites = JSON.parse(localStorage.getItem("guitar-favorites") || "[]");
 
 // ─── 초기화 ──────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
@@ -17,6 +16,8 @@ document.addEventListener("DOMContentLoaded", () => {
   renderScale();
   renderFavoritesList();
   updateFavTabLabel();
+  // 즐겨찾기 탭 클릭 시 재렌더 (별표 상태 동기화)
+  document.querySelector('.tab-btn[data-tab="favorites"]').addEventListener("click", renderFavoritesList);
 });
 
 // ─── 탭 ──────────────────────────────────────────────────────────
@@ -66,7 +67,7 @@ function renderChordList() {
   const chords = filteredChords();
   list.innerHTML = chords.map((chord, i) => {
     const typeDef = CHORD_TYPES[chord.category];
-    const isFav = favorites.has(chord.name);
+    const isFav = favorites.includes(chord.name);
     return `
     <div class="chord-list-item${i === currentChordIndex ? " active" : ""}" data-index="${i}">
       <div class="chord-list-info">
@@ -129,12 +130,13 @@ function renderChordLegend(chord, containerId = "chord-legend") {
 
 // ─── 즐겨찾기 ─────────────────────────────────────────────────────
 function toggleFavorite(chordName) {
-  if (favorites.has(chordName)) {
-    favorites.delete(chordName);
+  const idx = favorites.indexOf(chordName);
+  if (idx !== -1) {
+    favorites.splice(idx, 1);
   } else {
-    favorites.add(chordName);
+    favorites.push(chordName);
   }
-  localStorage.setItem("guitar-favorites", JSON.stringify([...favorites]));
+  localStorage.setItem("guitar-favorites", JSON.stringify(favorites));
   renderChordList();
   renderFavoritesList();
   updateFavTabLabel();
@@ -142,62 +144,84 @@ function toggleFavorite(chordName) {
 
 function updateFavTabLabel() {
   const btn = document.querySelector('.tab-btn[data-tab="favorites"]');
-  if (btn) btn.textContent = favorites.size > 0 ? `즐겨찾기 (${favorites.size})` : "즐겨찾기";
+  if (btn) btn.textContent = favorites.length > 0 ? `즐겨찾기 (${favorites.length})` : "즐겨찾기";
 }
 
+let dragSrcIndex = null;
+
 function renderFavoritesList() {
-  const list = document.getElementById("fav-list");
-  const favChords = CHORDS.filter(c => favorites.has(c.name));
+  const grid = document.getElementById("fav-grid");
+  const favChords = favorites.map(name => CHORDS.find(c => c.name === name)).filter(Boolean);
 
   if (favChords.length === 0) {
-    list.innerHTML = '<p class="fav-empty">★ 버튼으로<br>코드를 추가하세요</p>';
-    ["fav-view-name", "fav-view-notes"].forEach(id => document.getElementById(id).textContent = "");
-    document.getElementById("fav-legend").innerHTML = "";
-    document.getElementById("fav-fretboard").innerHTML = "";
+    grid.innerHTML = '<p class="fav-empty">★ 버튼으로<br>코드를 추가하세요</p>';
     return;
   }
 
-  if (currentFavIndex >= favChords.length) currentFavIndex = 0;
+  const colors = ["#f5a623", "#4caf50", "#4a9eff", "#ce93d8", "#ffca28", "#ef5350"];
 
-  list.innerHTML = favChords.map((chord, i) => {
+  grid.innerHTML = favChords.map((chord, i) => {
     const typeDef = CHORD_TYPES[chord.category];
-    return `
-    <div class="chord-list-item${i === currentFavIndex ? " active" : ""}" data-index="${i}">
-      <div class="chord-list-info">
-        <div class="chord-list-top">
-          <span class="chord-list-name">${chord.name}</span>
-          <span class="chord-list-type">${typeDef ? typeDef.label : ""}</span>
-        </div>
-        <span class="chord-list-notes">${chord.notes.join(" · ")}</span>
+    const positions = getChordFretPositions(chord.notes, 12);
+    const fretboardSvg = renderFretboard(positions, 12, true);
+    const degrees = typeDef ? typeDef.degrees : chord.notes.map((_, j) => ["R","3","5","♭7","9","11"][j] || "");
+    const legend = chord.notes.map((note, j) => `
+      <div class="legend-item">
+        <div class="legend-dot" style="background:${colors[j] || colors[colors.length-1]}"></div>
+        <span>${note} <span style="color:#555">(${degrees[j] || ""})</span></span>
       </div>
-      <button class="fav-btn active" data-name="${chord.name}" title="제거">★</button>
-    </div>
+    `).join("");
+
+    return `
+      <div class="fav-card" draggable="true" data-name="${chord.name}" data-index="${i}">
+        <div class="fav-card-header">
+          <span class="drag-handle">⠿</span>
+          <span class="fav-card-name">${chord.name}</span>
+          <span class="fav-card-type">${typeDef ? typeDef.label : ""}</span>
+          <div class="fav-card-legend scale-legend">${legend}</div>
+          <button class="fav-btn active" data-name="${chord.name}" title="제거">★</button>
+        </div>
+        <div class="fav-card-fretboard fretboard-wrap">${fretboardSvg}</div>
+      </div>
     `;
   }).join("");
 
-  list.querySelectorAll(".chord-list-item").forEach(item => {
-    item.querySelector(".chord-list-info").addEventListener("click", () => {
-      currentFavIndex = parseInt(item.dataset.index);
-      list.querySelectorAll(".chord-list-item").forEach(b => b.classList.remove("active"));
-      item.classList.add("active");
-      renderFavoritesView(favChords);
-    });
-    item.querySelector(".fav-btn").addEventListener("click", e => {
+  grid.querySelectorAll(".fav-btn").forEach(btn => {
+    btn.addEventListener("click", e => {
       e.stopPropagation();
       toggleFavorite(e.currentTarget.dataset.name);
     });
   });
 
-  renderFavoritesView(favChords);
-}
-
-function renderFavoritesView(favChords) {
-  const chord = favChords[currentFavIndex] || favChords[0];
-  document.getElementById("fav-view-name").textContent = chord.name;
-  document.getElementById("fav-view-notes").textContent = chord.notes.join("  ·  ");
-  renderChordLegend(chord, "fav-legend");
-  const positions = getChordFretPositions(chord.notes, 21);
-  document.getElementById("fav-fretboard").innerHTML = renderFretboard(positions, 21, true);
+  grid.querySelectorAll(".fav-card").forEach(card => {
+    card.addEventListener("dragstart", e => {
+      dragSrcIndex = parseInt(card.dataset.index);
+      setTimeout(() => card.classList.add("dragging"), 0);
+      e.dataTransfer.effectAllowed = "move";
+    });
+    card.addEventListener("dragend", () => {
+      card.classList.remove("dragging");
+      grid.querySelectorAll(".fav-card").forEach(c => c.classList.remove("drag-over"));
+    });
+    card.addEventListener("dragover", e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      grid.querySelectorAll(".fav-card").forEach(c => c.classList.remove("drag-over"));
+      card.classList.add("drag-over");
+    });
+    card.addEventListener("dragleave", () => card.classList.remove("drag-over"));
+    card.addEventListener("drop", e => {
+      e.preventDefault();
+      const targetIndex = parseInt(card.dataset.index);
+      if (dragSrcIndex !== null && dragSrcIndex !== targetIndex) {
+        const [moved] = favorites.splice(dragSrcIndex, 1);
+        favorites.splice(targetIndex, 0, moved);
+        localStorage.setItem("guitar-favorites", JSON.stringify(favorites));
+        renderFavoritesList();
+        renderChordList();
+      }
+    });
+  });
 }
 
 // ─── 스케일 탭 ───────────────────────────────────────────────────
