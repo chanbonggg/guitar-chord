@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>기타 코드 사전</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header>
+    <div class="header-top">
+      <h1>🎸 기타 코드 사전</h1>
+    </div>
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab="chords">코드</button>
+      <button class="tab-btn" data-tab="scales">스케일</button>
+      <button class="tab-btn" data-tab="favorites">즐겨찾기</button>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- 코드 탭 -->
+    <div id="tab-chords" class="tab-panel active">
+      <div class="chord-tab-layout">
+
+        <!-- 왼쪽: 코드 목록 -->
+        <aside class="chord-sidebar">
+          <div class="filter-btns" id="chord-filter-btns"></div>
+          <div id="chord-list"></div>
+        </aside>
+
+        <!-- 오른쪽: 지판 뷰 -->
+        <section class="chord-view">
+          <div class="chord-view-header">
+            <span id="chord-view-name" class="chord-view-name">C</span>
+            <span id="chord-view-notes" class="chord-view-notes-text"></span>
+          </div>
+          <div id="chord-legend" class="scale-legend"></div>
+          <div class="fretboard-wrap">
+            <div id="chord-fretboard"></div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <!-- 즐겨찾기 탭 -->
+    <div id="tab-favorites" class="tab-panel">
+      <div class="chord-tab-layout">
+        <aside class="chord-sidebar">
+          <div id="fav-list"></div>
+        </aside>
+        <section class="chord-view">
+          <div class="chord-view-header">
+            <span id="fav-view-name" class="chord-view-name"></span>
+            <span id="fav-view-notes" class="chord-view-notes-text"></span>
+          </div>
+          <div id="fav-legend" class="scale-legend"></div>
+          <div class="fretboard-wrap">
+            <div id="fav-fretboard"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- 스케일 탭 -->
+    <div id="tab-scales" class="tab-panel">
+      <div class="scale-controls">
+        <div class="control-row">
+          <span class="control-label">루트음</span>
+          <div id="root-buttons"></div>
+        </div>
+        <div class="control-row">
+          <span class="control-label">스케일</span>
+          <div id="scale-buttons"></div>
+        </div>
+      </div>
+
+      <div class="scale-notes-bar">
+        구성음: <span id="scale-notes-display"></span>
+      </div>
+
+      <div class="scale-legend">
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#f5a623"></div>
+          <span>루트음</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#4a9eff"></div>
+          <span>스케일음</span>
+        </div>
+      </div>
+
+      <div class="fretboard-wrap">
+        <div id="scale-fretboard"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="scales.js"></script>
+  <script src="chords.js"></script>
+  <script src="fretboard.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

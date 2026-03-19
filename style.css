@@ -1,0 +1,301 @@
+/* ── 기본 설정 ─────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg:        #141210;
+  --bg2:       #1e1b17;
+  --bg3:       #272320;
+  --border:    #353025;
+  --accent:    #f5a623;
+  --blue:      #4a9eff;
+  --text:      #e8dcc8;
+  --text-muted:#7a6f60;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', 'Noto Sans KR', sans-serif;
+  min-height: 100vh;
+}
+
+/* ── 헤더 ───────────────────────────────────────── */
+header {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 24px 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.header-top { margin-bottom: 12px; }
+
+header h1 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* ── 탭 ─────────────────────────────────────────── */
+.tabs { display: flex; }
+
+.tab-btn {
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 10px 20px;
+  transition: color 0.15s, border-color 0.15s;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── 코드 탭 레이아웃 ────────────────────────────── */
+.chord-tab-layout {
+  display: flex;
+  height: calc(100vh - 90px);
+}
+
+/* 왼쪽 사이드바 */
+.chord-sidebar {
+  width: 160px;
+  min-width: 140px;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.filter-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.filter-btn {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  transition: all 0.15s;
+}
+.filter-btn:hover { color: var(--text); }
+.filter-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #1a1a1a;
+}
+
+#chord-list {
+  overflow-y: auto;
+  flex: 1;
+  padding: 6px;
+}
+
+#chord-list::-webkit-scrollbar { width: 4px; }
+#chord-list::-webkit-scrollbar-track { background: transparent; }
+#chord-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.chord-list-item {
+  border: 1px solid transparent;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 4px 2px 2px;
+  transition: all 0.12s;
+  width: 100%;
+}
+.chord-list-item:hover { background: var(--bg3); }
+.chord-list-item.active {
+  background: var(--bg3);
+  border-color: var(--accent);
+}
+.chord-list-item.active .chord-list-name { color: var(--accent); }
+
+.chord-list-info {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  padding: 5px 8px;
+  min-width: 0;
+}
+
+.chord-list-top {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.chord-list-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+.chord-list-item:hover .chord-list-name { color: var(--text); }
+.chord-list-type {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+.chord-list-notes {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+/* ★ 즐겨찾기 버튼 */
+.fav-btn {
+  background: none;
+  border: none;
+  color: var(--border);
+  cursor: pointer;
+  flex-shrink: 0;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 4px 5px;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+.fav-btn:hover { color: var(--accent); background: var(--bg3); }
+.fav-btn.active { color: var(--accent); }
+
+.fav-empty {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  line-height: 1.6;
+  padding: 24px 12px;
+  text-align: center;
+}
+
+/* 오른쪽 지판 뷰 */
+.chord-view {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chord-view-header {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.chord-view-name {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.chord-view-notes-text {
+  font-size: 1rem;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+
+/* ── 공용: 지판 래퍼 ────────────────────────────── */
+.fretboard-wrap {
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+.fretboard-wrap svg { display: block; }
+
+/* ── 공용: 범례 ─────────────────────────────────── */
+.scale-legend {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.legend-dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── 스케일 탭 ──────────────────────────────────── */
+.scale-controls {
+  padding: 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.control-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.control-label {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  min-width: 52px;
+}
+
+.root-btn, .scale-type-btn {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.83rem;
+  font-weight: 600;
+  padding: 5px 11px;
+  transition: all 0.12s;
+}
+.root-btn:hover, .scale-type-btn:hover { color: var(--text); border-color: #555; }
+.root-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #1a1a1a;
+}
+.scale-type-btn.active {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #fff;
+}
+
+.scale-notes-bar {
+  padding: 4px 24px 8px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+#scale-notes-display { color: var(--text); font-weight: 500; }
+
+#tab-scales .scale-legend { padding: 0 24px 8px; }
+#tab-scales .fretboard-wrap { padding: 0 24px 32px; }
+
+/* ── 반응형 ─────────────────────────────────────── */
+@media (max-width: 640px) {
+  .chord-tab-layout { flex-direction: column; height: auto; }
+  .chord-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
+  #chord-list { max-height: 160px; }
+  .chord-view { padding: 14px; }
+}
