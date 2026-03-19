@@ -16,8 +16,16 @@ document.addEventListener("DOMContentLoaded", () => {
   renderScale();
   renderFavoritesList();
   updateFavTabLabel();
-  // 즐겨찾기 탭 클릭 시 재렌더 (별표 상태 동기화)
+  // 즐겨찾기 탭 클릭 시 재렌더
   document.querySelector('.tab-btn[data-tab="favorites"]').addEventListener("click", renderFavoritesList);
+
+  // 사이드바 토글
+  document.getElementById("fav-toggle-btn").addEventListener("click", () => {
+    const sidebar = document.getElementById("fav-sidebar");
+    const btn = document.getElementById("fav-toggle-btn");
+    const hidden = sidebar.classList.toggle("hidden");
+    btn.textContent = hidden ? "▶" : "◀";
+  });
 });
 
 // ─── 탭 ──────────────────────────────────────────────────────────
@@ -149,7 +157,83 @@ function updateFavTabLabel() {
 
 let dragSrcIndex = null;
 
+function saveFavOrder() {
+  localStorage.setItem("guitar-favorites", JSON.stringify(favorites));
+}
+
+function applyDrag(items, container) {
+  items.forEach(item => {
+    item.addEventListener("dragstart", e => {
+      dragSrcIndex = parseInt(item.dataset.index);
+      setTimeout(() => item.classList.add("dragging"), 0);
+      e.dataTransfer.effectAllowed = "move";
+    });
+    item.addEventListener("dragend", () => {
+      item.classList.remove("dragging");
+      container.querySelectorAll("[data-index]").forEach(c => c.classList.remove("drag-over"));
+    });
+    item.addEventListener("dragover", e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      container.querySelectorAll("[data-index]").forEach(c => c.classList.remove("drag-over"));
+      item.classList.add("drag-over");
+    });
+    item.addEventListener("dragleave", () => item.classList.remove("drag-over"));
+    item.addEventListener("drop", e => {
+      e.preventDefault();
+      const targetIndex = parseInt(item.dataset.index);
+      if (dragSrcIndex !== null && dragSrcIndex !== targetIndex) {
+        const [moved] = favorites.splice(dragSrcIndex, 1);
+        favorites.splice(targetIndex, 0, moved);
+        saveFavOrder();
+        renderFavoritesList();
+        renderChordList();
+      }
+    });
+  });
+}
+
 function renderFavoritesList() {
+  renderFavList();
+  renderFavGrid();
+}
+
+function renderFavList() {
+  const list = document.getElementById("fav-list");
+  const favChords = favorites.map(name => CHORDS.find(c => c.name === name)).filter(Boolean);
+
+  if (favChords.length === 0) {
+    list.innerHTML = '<p class="fav-empty">★ 버튼으로<br>코드를 추가하세요</p>';
+    return;
+  }
+
+  list.innerHTML = favChords.map((chord, i) => {
+    const typeDef = CHORD_TYPES[chord.category];
+    return `
+      <div class="chord-list-item" draggable="true" data-name="${chord.name}" data-index="${i}">
+        <div class="chord-list-info">
+          <div class="chord-list-top">
+            <span class="chord-list-name">${chord.name}</span>
+            <span class="chord-list-type">${typeDef ? typeDef.label : ""}</span>
+          </div>
+          <span class="chord-list-notes">${chord.notes.join(" · ")}</span>
+        </div>
+        <button class="fav-btn active" data-name="${chord.name}" title="제거">★</button>
+      </div>
+    `;
+  }).join("");
+
+  list.querySelectorAll(".fav-btn").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      toggleFavorite(e.currentTarget.dataset.name);
+    });
+  });
+
+  applyDrag(list.querySelectorAll(".chord-list-item"), list);
+}
+
+function renderFavGrid() {
   const grid = document.getElementById("fav-grid");
   const favChords = favorites.map(name => CHORDS.find(c => c.name === name)).filter(Boolean);
 
@@ -193,35 +277,7 @@ function renderFavoritesList() {
     });
   });
 
-  grid.querySelectorAll(".fav-card").forEach(card => {
-    card.addEventListener("dragstart", e => {
-      dragSrcIndex = parseInt(card.dataset.index);
-      setTimeout(() => card.classList.add("dragging"), 0);
-      e.dataTransfer.effectAllowed = "move";
-    });
-    card.addEventListener("dragend", () => {
-      card.classList.remove("dragging");
-      grid.querySelectorAll(".fav-card").forEach(c => c.classList.remove("drag-over"));
-    });
-    card.addEventListener("dragover", e => {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = "move";
-      grid.querySelectorAll(".fav-card").forEach(c => c.classList.remove("drag-over"));
-      card.classList.add("drag-over");
-    });
-    card.addEventListener("dragleave", () => card.classList.remove("drag-over"));
-    card.addEventListener("drop", e => {
-      e.preventDefault();
-      const targetIndex = parseInt(card.dataset.index);
-      if (dragSrcIndex !== null && dragSrcIndex !== targetIndex) {
-        const [moved] = favorites.splice(dragSrcIndex, 1);
-        favorites.splice(targetIndex, 0, moved);
-        localStorage.setItem("guitar-favorites", JSON.stringify(favorites));
-        renderFavoritesList();
-        renderChordList();
-      }
-    });
-  });
+  applyDrag(grid.querySelectorAll(".fav-card"), grid);
 }
 
 // ─── 스케일 탭 ───────────────────────────────────────────────────

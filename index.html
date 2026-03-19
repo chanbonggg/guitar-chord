@@ -48,7 +48,15 @@
 
     <!-- 즐겨찾기 탭 -->
     <div id="tab-favorites" class="tab-panel">
-      <div id="fav-grid" class="fav-grid"></div>
+      <div class="chord-tab-layout">
+        <aside class="chord-sidebar" id="fav-sidebar">
+          <div id="fav-list"></div>
+        </aside>
+        <section class="fav-main">
+          <button id="fav-toggle-btn" class="fav-toggle-btn" title="목록 접기/펼치기">◀</button>
+          <div id="fav-grid" class="fav-grid"></div>
+        </section>
+      </div>
     </div>
 
     <!-- 스케일 탭 -->
